@@ -1,6 +1,6 @@
 async function loadWorkouts() {
   try {
-    const res = await fetch("/api/workouts");
+    const res = await fetch("workouts.json");
     if (!res.ok) throw new Error("Failed to load workouts");
     return await res.json();
   } catch (err) {
