@@ -3,25 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Image Page</title>
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #111;
-    }
-    img {
-      max-width: 90vw;
-      max-height: 90vh;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    }
-  </style>
+  <title>Workout Calendar</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <img src="https://picsum.photos/800/600" alt="A random placeholder image">
+  <main class="calendar-card">
+    <header class="calendar-header">
+      <h1 id="month-label"></h1>
+    </header>
+    <div class="weekdays">
+      <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+    </div>
+    <div id="days-grid" class="days-grid"></div>
+  </main>
+  <script src="app.js"></script>
 </body>
 </html>
