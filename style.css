@@ -29,32 +29,32 @@ body {
 
 .calendar-card {
   background: #1b1b1b;
-  border-radius: 12px;
-  padding: 24px;
+  border-radius: 16px;
+  padding: 40px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
-  width: min(420px, 92vw);
+  width: min(760px, 94vw);
 }
 
 .calendar-header {
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
 .calendar-header h1 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 2rem;
   font-weight: 600;
 }
 
 .weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .weekdays span {
   text-align: center;
-  font-size: 0.75rem;
+  font-size: 1rem;
   color: #888;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -63,7 +63,7 @@ body {
 .days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  gap: 10px;
 }
 
 .day {
@@ -72,9 +72,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 10px;
   background: #242424;
-  font-size: 0.9rem;
+  font-size: 1.4rem;
 }
 
 .day.empty {
@@ -82,7 +82,7 @@ body {
 }
 
 .day.today {
-  outline: 1px solid #555;
+  outline: 2px solid #555;
 }
 
 .day.today .day-number {
@@ -95,10 +95,10 @@ body {
 
 .workout-cross {
   position: absolute;
-  top: 2px;
-  right: 4px;
+  top: 4px;
+  right: 8px;
   color: #ff5c5c;
-  font-size: 0.85rem;
+  font-size: 1.2rem;
   font-weight: 700;
   line-height: 1;
 }
