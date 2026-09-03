@@ -94,12 +94,22 @@ body {
   cursor: pointer;
 }
 
+.day.workout-done .day-number {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font-size: 0.75rem;
+  color: #999;
+}
+
 .workout-cross {
   position: absolute;
-  top: 4px;
-  right: 8px;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #ff5c5c;
-  font-size: 1.2rem;
+  font-size: 2.6rem;
   font-weight: 700;
   line-height: 1;
 }
