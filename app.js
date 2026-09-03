@@ -5,7 +5,7 @@ async function loadWorkouts() {
     return await res.json();
   } catch (err) {
     console.error(err);
-    return [];
+    return {};
   }
 }
 
@@ -17,7 +17,27 @@ function toDateKey(year, month, day) {
   return `${year}-${pad(month + 1)}-${pad(day)}`;
 }
 
-function renderCalendar(workoutDates) {
+function formatDateLabel(key) {
+  const [year, month, day] = key.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString("default", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function openModal(dateKey, description) {
+  document.getElementById("modal-date").textContent = formatDateLabel(dateKey);
+  document.getElementById("modal-description").textContent = description;
+  document.getElementById("workout-modal").classList.remove("hidden");
+}
+
+function closeModal() {
+  document.getElementById("workout-modal").classList.add("hidden");
+}
+
+function renderCalendar(workouts) {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
@@ -49,12 +69,23 @@ function renderCalendar(workoutDates) {
     number.textContent = day;
     cell.appendChild(number);
 
-    if (workoutDates.has(key)) {
+    const description = workouts[key];
+    if (description) {
       cell.classList.add("workout-done");
+      cell.setAttribute("role", "button");
+      cell.setAttribute("tabindex", "0");
+      cell.setAttribute("aria-label", `Workout done on ${key}: ${description}`);
+      cell.addEventListener("click", () => openModal(key, description));
+      cell.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openModal(key, description);
+        }
+      });
+
       const cross = document.createElement("span");
       cross.className = "workout-cross";
       cross.textContent = "✕";
-      cross.setAttribute("aria-label", "Workout done");
       cell.appendChild(cross);
     }
 
@@ -64,6 +95,13 @@ function renderCalendar(workoutDates) {
 
 (async function init() {
   const workouts = await loadWorkouts();
-  const workoutDates = new Set(Array.isArray(workouts) ? workouts : []);
-  renderCalendar(workoutDates);
+  renderCalendar(workouts);
+
+  document.getElementById("modal-close").addEventListener("click", closeModal);
+  document.getElementById("workout-modal").addEventListener("click", (e) => {
+    if (e.target.id === "workout-modal") closeModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
+  });
 })();
