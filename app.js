@@ -133,8 +133,8 @@ function renderWhoopBox(data) {
     data.recoveryScore != null ? `${Math.round(data.recoveryScore)}%` : "—";
   document.getElementById("whoop-sleep").textContent =
     data.sleepPerformance != null ? `${Math.round(data.sleepPerformance)}%` : "—";
-  document.getElementById("whoop-strain").textContent =
-    data.strain != null ? data.strain.toFixed(1) : "—";
+  document.getElementById("whoop-hrv").textContent =
+    data.hrv != null ? `${Math.round(data.hrv)}` : "—";
   document.getElementById("whoop-rhr").textContent =
     data.restingHeartRate != null ? `${Math.round(data.restingHeartRate)}` : "—";
 
