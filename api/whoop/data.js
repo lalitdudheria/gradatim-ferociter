@@ -19,7 +19,10 @@ module.exports = async (req, res) => {
     const [recovery, sleep, workouts] = await Promise.all([
       whoopGet("/v2/recovery?limit=1", accessToken),
       whoopGet("/v2/activity/sleep?limit=1", accessToken),
-      fetchRecentWorkouts(accessToken, sinceDate),
+      fetchRecentWorkouts(accessToken, sinceDate).catch((err) => {
+        console.error("Fetching WHOOP workouts failed:", err);
+        return {};
+      }),
     ]);
 
     const recoveryRecord = recovery.records && recovery.records[0];
