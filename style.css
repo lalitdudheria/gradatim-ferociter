@@ -165,10 +165,10 @@ body {
   top: 16px;
   right: 16px;
   background: #1b1b1b;
-  border-radius: 10px;
-  padding: 14px 16px;
+  border-radius: 20px;
+  padding: 28px 32px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-  width: 160px;
+  width: 320px;
 }
 
 .whoop-box.hidden {
@@ -176,8 +176,8 @@ body {
 }
 
 .whoop-box h2 {
-  margin: 0 0 8px;
-  font-size: 0.75rem;
+  margin: 0 0 16px;
+  font-size: 1.5rem;
   letter-spacing: 0.08em;
   color: #888;
   text-transform: uppercase;
@@ -187,17 +187,17 @@ body {
   margin: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 16px;
 }
 
 .whoop-box dt {
   margin: 0;
-  font-size: 0.7rem;
+  font-size: 1.4rem;
   color: #888;
 }
 
 .whoop-box dd {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 2.2rem;
   font-weight: 600;
 }
