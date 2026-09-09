@@ -126,6 +126,18 @@ async function loadWhoopData() {
   }
 }
 
+function mergeWorkouts(manual, whoopData) {
+  const merged = { ...manual };
+  if (whoopData && whoopData.connected && whoopData.workouts) {
+    for (const [date, info] of Object.entries(whoopData.workouts)) {
+      if (!merged[date]) {
+        merged[date] = `${info.sport} — ${info.durationMinutes} min (via WHOOP)`;
+      }
+    }
+  }
+  return merged;
+}
+
 function renderWhoopBox(data) {
   if (!data || !data.connected) return;
 
@@ -142,9 +154,6 @@ function renderWhoopBox(data) {
 }
 
 (async function init() {
-  const workouts = await loadWorkouts();
-  renderCalendar(workouts);
-
   document.getElementById("modal-close").addEventListener("click", closeModal);
   document.getElementById("workout-modal").addEventListener("click", (e) => {
     if (e.target.id === "workout-modal") closeModal();
@@ -154,6 +163,9 @@ function renderWhoopBox(data) {
   });
 
   await completeWhoopExchangeIfPresent();
-  const whoopData = await loadWhoopData();
+
+  const [manualWorkouts, whoopData] = await Promise.all([loadWorkouts(), loadWhoopData()]);
+
+  renderCalendar(mergeWorkouts(manualWorkouts, whoopData));
   renderWhoopBox(whoopData);
 })();

@@ -1,4 +1,4 @@
-const { getValidAccessToken, whoopGet } = require("../../lib/whoop");
+const { getValidAccessToken, whoopGet, fetchRecentWorkouts } = require("../../lib/whoop");
 
 // Read-only endpoint the frontend polls to render the WHOOP box. Never
 // exposes tokens — just the handful of numbers the UI needs.
@@ -15,9 +15,11 @@ module.exports = async (req, res) => {
       return;
     }
 
-    const [recovery, sleep] = await Promise.all([
+    const sinceDate = new Date(Date.now() - 35 * 24 * 60 * 60 * 1000);
+    const [recovery, sleep, workouts] = await Promise.all([
       whoopGet("/v2/recovery?limit=1", accessToken),
       whoopGet("/v2/activity/sleep?limit=1", accessToken),
+      fetchRecentWorkouts(accessToken, sinceDate),
     ]);
 
     const recoveryRecord = recovery.records && recovery.records[0];
@@ -29,6 +31,7 @@ module.exports = async (req, res) => {
       restingHeartRate: (recoveryRecord && recoveryRecord.score && recoveryRecord.score.resting_heart_rate) ?? null,
       hrv: (recoveryRecord && recoveryRecord.score && recoveryRecord.score.hrv_rmssd_milli) ?? null,
       sleepPerformance: (sleepRecord && sleepRecord.score && sleepRecord.score.sleep_performance_percentage) ?? null,
+      workouts,
     });
   } catch (err) {
     res.status(500).json({ error: String((err && err.message) || err) });
