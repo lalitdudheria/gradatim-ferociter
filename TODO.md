@@ -2,6 +2,7 @@
 
 - [ ] Change the theme
 - [ ] Add blocks
+- [ ] Auto-mark workout crosses on the calendar by checking WHOOP for whether a workout was logged that day
 
 # Live
 
