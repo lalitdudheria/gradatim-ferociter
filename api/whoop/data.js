@@ -15,14 +15,12 @@ module.exports = async (req, res) => {
       return;
     }
 
-    let workoutsError = null;
     const sinceDate = new Date(Date.now() - 35 * 24 * 60 * 60 * 1000);
     const [recovery, sleep, workouts] = await Promise.all([
       whoopGet("/v2/recovery?limit=1", accessToken),
       whoopGet("/v2/activity/sleep?limit=5", accessToken),
       fetchRecentWorkouts(accessToken, sinceDate).catch((err) => {
         console.error("Fetching WHOOP workouts failed:", err);
-        workoutsError = String((err && err.message) || err);
         return {};
       }),
     ]);
@@ -39,7 +37,6 @@ module.exports = async (req, res) => {
       hrv: (recoveryRecord && recoveryRecord.score && recoveryRecord.score.hrv_rmssd_milli) ?? null,
       sleepPerformance: (sleepRecord && sleepRecord.score && sleepRecord.score.sleep_performance_percentage) ?? null,
       workouts,
-      workoutsError,
     });
   } catch (err) {
     res.status(500).json({ error: String((err && err.message) || err) });
