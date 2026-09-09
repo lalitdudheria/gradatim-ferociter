@@ -1,3 +1,9 @@
+const DAY_NAMES = ["S", "M", "T", "W", "T", "F", "S"];
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
 async function loadWorkouts() {
   try {
     const res = await fetch("workouts.json");
@@ -37,41 +43,45 @@ function closeModal() {
   document.getElementById("workout-modal").classList.add("hidden");
 }
 
-function renderCalendar(workouts) {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
+let viewYear;
+let viewMonth;
+let currentWorkouts = {};
 
-  document.getElementById("month-label").textContent =
-    now.toLocaleString("default", { month: "long", year: "numeric" });
+const today = new Date();
+const todayKey = toDateKey(today.getFullYear(), today.getMonth(), today.getDate());
+
+function renderCalendar() {
+  document.getElementById("month-label").textContent = MONTH_NAMES[viewMonth];
 
   const grid = document.getElementById("days-grid");
   grid.innerHTML = "";
 
-  const firstWeekday = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const todayKey = toDateKey(year, month, now.getDate());
+  DAY_NAMES.forEach((name) => {
+    const el = document.createElement("div");
+    el.className = "day-name";
+    el.textContent = name;
+    grid.appendChild(el);
+  });
+
+  const firstWeekday = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
 
   for (let i = 0; i < firstWeekday; i++) {
     const empty = document.createElement("div");
-    empty.className = "day empty";
+    empty.className = "cell empty";
     grid.appendChild(empty);
   }
 
   for (let day = 1; day <= daysInMonth; day++) {
-    const key = toDateKey(year, month, day);
+    const key = toDateKey(viewYear, viewMonth, day);
     const cell = document.createElement("div");
-    cell.className = "day";
+    cell.className = "cell";
+    cell.textContent = day;
     if (key === todayKey) cell.classList.add("today");
 
-    const number = document.createElement("span");
-    number.className = "day-number";
-    number.textContent = day;
-    cell.appendChild(number);
-
-    const description = workouts[key];
+    const description = currentWorkouts[key];
     if (description) {
-      cell.classList.add("workout-done");
+      cell.classList.add("miss");
       cell.setAttribute("role", "button");
       cell.setAttribute("tabindex", "0");
       cell.setAttribute("aria-label", `Workout done on ${key}: ${description}`);
@@ -82,11 +92,6 @@ function renderCalendar(workouts) {
           openModal(key, description);
         }
       });
-
-      const cross = document.createElement("span");
-      cross.className = "workout-cross";
-      cross.textContent = "✕";
-      cell.appendChild(cross);
     }
 
     grid.appendChild(cell);
@@ -138,22 +143,25 @@ function mergeWorkouts(manual, whoopData) {
   return merged;
 }
 
-function renderWhoopBox(data) {
+function renderWhoopStats(data) {
   if (!data || !data.connected) return;
 
-  document.getElementById("whoop-recovery").textContent =
+  document.getElementById("stat-recovery").textContent =
     data.recoveryScore != null ? `${Math.round(data.recoveryScore)}%` : "—";
-  document.getElementById("whoop-sleep").textContent =
+  document.getElementById("stat-sleep").textContent =
     data.sleepPerformance != null ? `${Math.round(data.sleepPerformance)}%` : "—";
-  document.getElementById("whoop-hrv").textContent =
+  document.getElementById("stat-hrv").textContent =
     data.hrv != null ? `${Math.round(data.hrv)}` : "—";
-  document.getElementById("whoop-rhr").textContent =
+  document.getElementById("stat-rhr").textContent =
     data.restingHeartRate != null ? `${Math.round(data.restingHeartRate)}` : "—";
 
-  document.getElementById("whoop-box").classList.remove("hidden");
+  document.getElementById("whoop-stats").classList.remove("hidden");
 }
 
 (async function init() {
+  viewYear = today.getFullYear();
+  viewMonth = today.getMonth();
+
   document.getElementById("modal-close").addEventListener("click", closeModal);
   document.getElementById("workout-modal").addEventListener("click", (e) => {
     if (e.target.id === "workout-modal") closeModal();
@@ -162,10 +170,23 @@ function renderWhoopBox(data) {
     if (e.key === "Escape") closeModal();
   });
 
+  document.getElementById("prev-month").addEventListener("click", () => {
+    viewMonth--;
+    if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+    renderCalendar();
+  });
+
+  document.getElementById("next-month").addEventListener("click", () => {
+    viewMonth++;
+    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    renderCalendar();
+  });
+
   await completeWhoopExchangeIfPresent();
 
   const [manualWorkouts, whoopData] = await Promise.all([loadWorkouts(), loadWhoopData()]);
 
-  renderCalendar(mergeWorkouts(manualWorkouts, whoopData));
-  renderWhoopBox(whoopData);
+  currentWorkouts = mergeWorkouts(manualWorkouts, whoopData);
+  renderCalendar();
+  renderWhoopStats(whoopData);
 })();

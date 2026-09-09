@@ -1,119 +1,160 @@
 :root {
-  color-scheme: dark;
+  --bg: #16181C;
+  --panel: #1D2025;
+  --panel-miss: #2A1D1F;
+  --border: #2A2D33;
+  --text-primary: #F5F5F0;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+  --accent: #6FCF97;
+  --danger: #D65D5D;
+  --radius: 4px;
 }
 
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
 body {
-  margin: 0;
+  background: var(--bg);
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: var(--text-primary);
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  background: #111;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  color: #eee;
+  padding: 40px 20px;
 }
 
-.site-title {
-  margin: 0;
-  text-align: center;
-  font-size: clamp(2rem, 6vw, 3.5rem);
-  font-weight: 700;
+.dashboard {
+  width: 100%;
+  max-width: 640px;
+}
+
+.motto {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 40px;
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-bottom: 36px;
+}
+
+/* WHOOP stats row */
+.stats {
+  display: flex;
+  gap: 28px;
+  margin-bottom: 44px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.stats.hidden {
+  display: none;
+}
+
+.stat-label {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-family: 'Oswald', sans-serif;
+  font-size: 36px;
+  font-weight: 500;
+}
+
+.stat-value.accent { color: var(--accent); }
+
+/* Calendar */
+.calendar-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.calendar-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 16px;
   letter-spacing: 0.02em;
 }
 
-.calendar-card {
-  background: #1b1b1b;
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
-  width: min(760px, 94vw);
+.calendar-nav {
+  display: flex;
+  gap: 12px;
 }
 
-.calendar-header {
-  text-align: center;
-  margin-bottom: 24px;
+.calendar-nav button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-family: inherit;
 }
 
-.calendar-header h1 {
-  margin: 0;
-  font-size: 2rem;
-  font-weight: 600;
-}
+.calendar-nav button:hover { color: var(--text-primary); }
 
-.weekdays {
+.calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  margin-bottom: 12px;
+  gap: 6px;
 }
 
-.weekdays span {
+.day-name {
+  color: #52565E;
+  font-size: 10px;
   text-align: center;
-  font-size: 1rem;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  padding-bottom: 6px;
 }
 
-.days-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
-}
-
-.day {
-  position: relative;
+.cell {
+  background: var(--panel);
   aspect-ratio: 1;
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  background: #242424;
-  font-size: 1.4rem;
+  font-size: 13px;
+  color: var(--text-secondary);
 }
 
-.day.empty {
-  background: transparent;
-}
+.cell.empty { background: transparent; }
 
-.day.today {
-  outline: 2px solid #555;
-}
-
-.day.today .day-number {
-  font-weight: 700;
-}
-
-.day.workout-done {
-  background: #2a1414;
+.cell.miss {
+  background: var(--panel-miss);
+  color: transparent;
+  position: relative;
   cursor: pointer;
 }
 
-.day.workout-done .day-number {
+.cell.miss::after {
+  content: '\00d7';
   position: absolute;
-  top: 6px;
-  left: 8px;
-  font-size: 0.75rem;
-  color: #999;
+  font-size: 16px;
+  color: var(--danger);
 }
 
-.workout-cross {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ff5c5c;
-  font-size: 2.6rem;
-  font-weight: 700;
-  line-height: 1;
+.cell.today {
+  border: 1.5px solid var(--accent);
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
+/* Modal */
 .modal {
   position: fixed;
   inset: 0;
@@ -130,22 +171,25 @@ body {
 
 .modal-content {
   position: relative;
-  background: #1b1b1b;
-  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   padding: 28px;
   width: min(360px, 100%);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
 }
 
 .modal-content h2 {
+  font-family: 'Oswald', sans-serif;
   margin: 0 0 12px;
-  font-size: 1.2rem;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .modal-content p {
   margin: 0;
-  color: #ccc;
+  color: var(--text-secondary);
   line-height: 1.5;
+  font-size: 14px;
 }
 
 .modal-close {
@@ -154,50 +198,18 @@ body {
   right: 12px;
   background: none;
   border: none;
-  color: #eee;
+  color: var(--text-muted);
   font-size: 1.5rem;
   line-height: 1;
   cursor: pointer;
 }
 
-.whoop-box {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  background: #1b1b1b;
-  border-radius: 20px;
-  padding: 28px 32px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-  width: 320px;
+.modal-close:hover {
+  color: var(--text-primary);
 }
 
-.whoop-box.hidden {
-  display: none;
-}
-
-.whoop-box h2 {
-  margin: 0 0 16px;
-  font-size: 1.5rem;
-  letter-spacing: 0.08em;
-  color: #888;
-  text-transform: uppercase;
-}
-
-.whoop-box dl {
-  margin: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.whoop-box dt {
-  margin: 0;
-  font-size: 1.4rem;
-  color: #888;
-}
-
-.whoop-box dd {
-  margin: 0;
-  font-size: 2.2rem;
-  font-weight: 600;
+@media (max-width: 480px) {
+  .motto { font-size: 32px; }
+  .stats { gap: 20px; }
+  .stat-value { font-size: 28px; }
 }

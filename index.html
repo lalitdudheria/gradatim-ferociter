@@ -3,30 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Workout Calendar</title>
+  <title>Gradatim Ferociter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="whoop-box" class="whoop-box hidden">
-    <h2>WHOOP</h2>
-    <dl>
-      <div><dt>Recovery</dt><dd id="whoop-recovery">—</dd></div>
-      <div><dt>Sleep</dt><dd id="whoop-sleep">—</dd></div>
-      <div><dt>HRV</dt><dd id="whoop-hrv">—</dd></div>
-      <div><dt>RHR</dt><dd id="whoop-rhr">—</dd></div>
-    </dl>
-  </div>
+  <div class="dashboard">
+    <h1 class="motto">Gradatim<br>Ferociter</h1>
+    <p class="subtitle">Step by step, ferociously</p>
 
-  <h1 class="site-title">Gradatim Ferociter</h1>
-  <main class="calendar-card">
-    <header class="calendar-header">
-      <h1 id="month-label"></h1>
-    </header>
-    <div class="weekdays">
-      <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+    <div class="stats hidden" id="whoop-stats">
+      <div>
+        <div class="stat-label">Recovery</div>
+        <div class="stat-value accent" id="stat-recovery">—</div>
+      </div>
+      <div>
+        <div class="stat-label">Sleep</div>
+        <div class="stat-value" id="stat-sleep">—</div>
+      </div>
+      <div>
+        <div class="stat-label">HRV</div>
+        <div class="stat-value" id="stat-hrv">—</div>
+      </div>
+      <div>
+        <div class="stat-label">RHR</div>
+        <div class="stat-value" id="stat-rhr">—</div>
+      </div>
     </div>
-    <div id="days-grid" class="days-grid"></div>
-  </main>
+
+    <div class="calendar-header">
+      <div class="calendar-title" id="month-label"></div>
+      <div class="calendar-nav">
+        <button id="prev-month" aria-label="Previous month">&larr;</button>
+        <button id="next-month" aria-label="Next month">&rarr;</button>
+      </div>
+    </div>
+
+    <div class="calendar-grid" id="days-grid"></div>
+  </div>
 
   <div id="workout-modal" class="modal hidden">
     <div class="modal-content">
