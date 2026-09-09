@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
     const sinceDate = new Date(Date.now() - 35 * 24 * 60 * 60 * 1000);
     const [recovery, sleep, workouts] = await Promise.all([
       whoopGet("/v2/recovery?limit=1", accessToken),
-      whoopGet("/v2/activity/sleep?limit=1", accessToken),
+      whoopGet("/v2/activity/sleep?limit=5", accessToken),
       fetchRecentWorkouts(accessToken, sinceDate).catch((err) => {
         console.error("Fetching WHOOP workouts failed:", err);
         return {};
@@ -26,7 +26,9 @@ module.exports = async (req, res) => {
     ]);
 
     const recoveryRecord = recovery.records && recovery.records[0];
-    const sleepRecord = sleep.records && sleep.records[0];
+    // Skip naps — we want the main nightly sleep, not whichever sleep
+    // record happens to be most recent.
+    const sleepRecord = (sleep.records || []).find((record) => !record.nap);
 
     res.status(200).json({
       connected: true,
