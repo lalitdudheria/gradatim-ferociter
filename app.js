@@ -93,6 +93,54 @@ function renderCalendar(workouts) {
   }
 }
 
+async function completeWhoopExchangeIfPresent() {
+  const params = new URLSearchParams(location.search);
+  const code = params.get("code");
+  const state = params.get("state");
+  if (!code || !state) return;
+
+  // Strip the OAuth params from the URL right away so a refresh doesn't
+  // resend an already-used code.
+  history.replaceState({}, "", location.pathname);
+
+  try {
+    const res = await fetch("/api/whoop/exchange", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, state }),
+    });
+    if (!res.ok) throw new Error("Exchange failed");
+  } catch (err) {
+    console.error("WHOOP connection failed:", err);
+  }
+}
+
+async function loadWhoopData() {
+  try {
+    const res = await fetch("/api/whoop/data");
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+}
+
+function renderWhoopBox(data) {
+  if (!data || !data.connected) return;
+
+  document.getElementById("whoop-recovery").textContent =
+    data.recoveryScore != null ? `${Math.round(data.recoveryScore)}%` : "—";
+  document.getElementById("whoop-sleep").textContent =
+    data.sleepPerformance != null ? `${Math.round(data.sleepPerformance)}%` : "—";
+  document.getElementById("whoop-strain").textContent =
+    data.strain != null ? data.strain.toFixed(1) : "—";
+  document.getElementById("whoop-rhr").textContent =
+    data.restingHeartRate != null ? `${Math.round(data.restingHeartRate)}` : "—";
+
+  document.getElementById("whoop-box").classList.remove("hidden");
+}
+
 (async function init() {
   const workouts = await loadWorkouts();
   renderCalendar(workouts);
@@ -104,4 +152,8 @@ function renderCalendar(workouts) {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeModal();
   });
+
+  await completeWhoopExchangeIfPresent();
+  const whoopData = await loadWhoopData();
+  renderWhoopBox(whoopData);
 })();
