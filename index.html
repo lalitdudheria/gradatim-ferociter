@@ -8,47 +8,66 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 </head>
 <body>
-  <div class="dashboard">
-    <h1 class="motto">Gradatim<br>Ferociter</h1>
-    <p class="subtitle">Step by step, ferociously</p>
+  <div class="layout">
+    <nav class="sidebar">
+      <button class="nav-item current" data-view="calendar">Calendar</button>
+      <button class="nav-item" data-view="blog">Blog</button>
+    </nav>
 
-    <div class="stats hidden" id="whoop-stats">
-      <div>
-        <div class="stat-label">Recovery</div>
-        <div class="stat-value accent" id="stat-recovery">—</div>
+    <div class="dashboard">
+      <h1 class="motto" id="page-title">Gradatim<br>Ferociter</h1>
+      <p class="subtitle" id="page-subtitle">Step by step, ferociously</p>
+
+      <div class="stats hidden" id="whoop-stats">
+        <div>
+          <div class="stat-label">Recovery</div>
+          <div class="stat-value accent" id="stat-recovery">—</div>
+        </div>
+        <div>
+          <div class="stat-label">Sleep</div>
+          <div class="stat-value" id="stat-sleep">—</div>
+        </div>
+        <div>
+          <div class="stat-label">HRV</div>
+          <div class="stat-value" id="stat-hrv">—</div>
+        </div>
+        <div>
+          <div class="stat-label">RHR</div>
+          <div class="stat-value" id="stat-rhr">—</div>
+        </div>
       </div>
-      <div>
-        <div class="stat-label">Sleep</div>
-        <div class="stat-value" id="stat-sleep">—</div>
+
+      <div class="view active" id="view-calendar">
+        <div class="calendar-header">
+          <div class="calendar-title" id="month-label"></div>
+          <div class="calendar-nav">
+            <button id="prev-month" aria-label="Previous month">&larr;</button>
+            <button id="next-month" aria-label="Next month">&rarr;</button>
+          </div>
+        </div>
+
+        <div class="calendar-grid" id="days-grid"></div>
       </div>
-      <div>
-        <div class="stat-label">HRV</div>
-        <div class="stat-value" id="stat-hrv">—</div>
-      </div>
-      <div>
-        <div class="stat-label">RHR</div>
-        <div class="stat-value" id="stat-rhr">—</div>
+
+      <div class="view" id="view-blog">
+        <div class="blog-list" id="blog-list"></div>
+
+        <div class="blog-post hidden" id="blog-post">
+          <button class="back-link" id="blog-back">&larr; Back</button>
+          <div class="detail-body" id="blog-post-body"></div>
+        </div>
       </div>
     </div>
-
-    <div class="calendar-header">
-      <div class="calendar-title" id="month-label"></div>
-      <div class="calendar-nav">
-        <button id="prev-month" aria-label="Previous month">&larr;</button>
-        <button id="next-month" aria-label="Next month">&rarr;</button>
-      </div>
-    </div>
-
-    <div class="calendar-grid" id="days-grid"></div>
   </div>
 
-  <div id="workout-modal" class="modal hidden">
+  <div id="detail-modal" class="modal hidden">
     <div class="modal-content">
-      <button id="modal-close" class="modal-close" aria-label="Close">&times;</button>
-      <h2 id="modal-date"></h2>
-      <p id="modal-description"></p>
+      <button id="detail-close" class="modal-close" aria-label="Close">&times;</button>
+      <h2 id="detail-title"></h2>
+      <div id="detail-body" class="detail-body"></div>
     </div>
   </div>
 

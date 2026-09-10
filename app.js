@@ -33,14 +33,21 @@ function formatDateLabel(key) {
   });
 }
 
-function openModal(dateKey, description) {
-  document.getElementById("modal-date").textContent = formatDateLabel(dateKey);
-  document.getElementById("modal-description").textContent = description;
-  document.getElementById("workout-modal").classList.remove("hidden");
+function openModal(title, body, { markdown = false } = {}) {
+  document.getElementById("detail-title").textContent = title;
+
+  const bodyEl = document.getElementById("detail-body");
+  if (markdown) {
+    bodyEl.innerHTML = marked.parse(body);
+  } else {
+    bodyEl.textContent = body;
+  }
+
+  document.getElementById("detail-modal").classList.remove("hidden");
 }
 
 function closeModal() {
-  document.getElementById("workout-modal").classList.add("hidden");
+  document.getElementById("detail-modal").classList.add("hidden");
 }
 
 let viewYear;
@@ -85,17 +92,141 @@ function renderCalendar() {
       cell.setAttribute("role", "button");
       cell.setAttribute("tabindex", "0");
       cell.setAttribute("aria-label", `Workout done on ${key}: ${description}`);
-      cell.addEventListener("click", () => openModal(key, description));
+      cell.addEventListener("click", () => openModal(formatDateLabel(key), description));
       cell.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
-          openModal(key, description);
+          openModal(formatDateLabel(key), description);
         }
       });
     }
 
     grid.appendChild(cell);
   }
+}
+
+async function loadBlogPosts() {
+  try {
+    const res = await fetch("blog.json");
+    if (!res.ok) throw new Error("Failed to load blog posts");
+    return await res.json();
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}
+
+const DEFAULT_TITLE_HTML = "Gradatim<br>Ferociter";
+const DEFAULT_SUBTITLE = "Step by step, ferociously";
+let whoopConnected = false;
+
+async function openBlogPost(post) {
+  let content = "*Couldn't load this post.*";
+  try {
+    const res = await fetch(post.file);
+    if (!res.ok) throw new Error("Failed to load post file");
+    content = await res.text();
+  } catch (err) {
+    console.error(err);
+  }
+
+  document.getElementById("page-title").textContent = post.title;
+  document.getElementById("page-subtitle").textContent = formatBlogDateFull(post.date);
+  document.getElementById("whoop-stats").classList.add("hidden");
+  document.getElementById("blog-post-body").innerHTML = marked.parse(content);
+
+  document.getElementById("blog-list").classList.add("hidden");
+  document.getElementById("blog-post").classList.remove("hidden");
+}
+
+function showBlogList() {
+  document.getElementById("page-title").innerHTML = DEFAULT_TITLE_HTML;
+  document.getElementById("page-subtitle").textContent = DEFAULT_SUBTITLE;
+  document.getElementById("whoop-stats").classList.toggle("hidden", !whoopConnected);
+
+  document.getElementById("blog-post").classList.add("hidden");
+  document.getElementById("blog-list").classList.remove("hidden");
+}
+
+function formatBlogDate(dateKey) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString("default", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function formatBlogDateFull(dateKey) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString("default", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function renderBlog(posts) {
+  const list = document.getElementById("blog-list");
+  list.innerHTML = "";
+
+  if (!posts.length) {
+    const empty = document.createElement("p");
+    empty.className = "blog-empty";
+    empty.textContent = "No posts yet.";
+    list.appendChild(empty);
+    return;
+  }
+
+  const sorted = [...posts].sort((a, b) => (a.date < b.date ? 1 : -1));
+
+  for (const post of sorted) {
+    const item = document.createElement("div");
+    item.className = "post";
+    item.setAttribute("role", "button");
+    item.setAttribute("tabindex", "0");
+
+    const main = document.createElement("div");
+    const title = document.createElement("div");
+    title.className = "post-title";
+    title.textContent = post.title;
+    main.appendChild(title);
+
+    if (post.excerpt) {
+      const excerpt = document.createElement("div");
+      excerpt.className = "post-excerpt";
+      excerpt.textContent = post.excerpt;
+      main.appendChild(excerpt);
+    }
+
+    const date = document.createElement("div");
+    date.className = "post-date";
+    date.textContent = formatBlogDate(post.date);
+
+    item.appendChild(main);
+    item.appendChild(date);
+
+    const open = () => openBlogPost(post);
+    item.addEventListener("click", open);
+    item.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        open();
+      }
+    });
+
+    list.appendChild(item);
+  }
+}
+
+function switchView(viewName) {
+  document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
+  document.getElementById(`view-${viewName}`).classList.add("active");
+
+  document.querySelectorAll(".nav-item").forEach((item) => {
+    item.classList.toggle("current", item.dataset.view === viewName);
+  });
+
+  showBlogList();
 }
 
 async function completeWhoopExchangeIfPresent() {
@@ -145,6 +276,7 @@ function mergeWorkouts(manual, whoopData) {
 
 function renderWhoopStats(data) {
   if (!data || !data.connected) return;
+  whoopConnected = true;
 
   document.getElementById("stat-recovery").textContent =
     data.recoveryScore != null ? `${Math.round(data.recoveryScore)}%` : "—";
@@ -162,13 +294,19 @@ function renderWhoopStats(data) {
   viewYear = today.getFullYear();
   viewMonth = today.getMonth();
 
-  document.getElementById("modal-close").addEventListener("click", closeModal);
-  document.getElementById("workout-modal").addEventListener("click", (e) => {
-    if (e.target.id === "workout-modal") closeModal();
+  document.getElementById("detail-close").addEventListener("click", closeModal);
+  document.getElementById("detail-modal").addEventListener("click", (e) => {
+    if (e.target.id === "detail-modal") closeModal();
   });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeModal();
   });
+
+  document.querySelectorAll(".nav-item").forEach((item) => {
+    item.addEventListener("click", () => switchView(item.dataset.view));
+  });
+
+  document.getElementById("blog-back").addEventListener("click", showBlogList);
 
   document.getElementById("prev-month").addEventListener("click", () => {
     viewMonth--;
@@ -184,9 +322,14 @@ function renderWhoopStats(data) {
 
   await completeWhoopExchangeIfPresent();
 
-  const [manualWorkouts, whoopData] = await Promise.all([loadWorkouts(), loadWhoopData()]);
+  const [manualWorkouts, whoopData, blogPosts] = await Promise.all([
+    loadWorkouts(),
+    loadWhoopData(),
+    loadBlogPosts(),
+  ]);
 
   currentWorkouts = mergeWorkouts(manualWorkouts, whoopData);
   renderCalendar();
   renderWhoopStats(whoopData);
+  renderBlog(blogPosts);
 })();
