@@ -2,6 +2,8 @@
 
 - [ ] Change the theme
 - [ ] Add blogs
+- [ ] Add the picture of toys
+- [ ] Remove recovery from the blog page
 
 # Live
 
